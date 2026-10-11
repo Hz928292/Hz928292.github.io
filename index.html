@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人主页 - 首页</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand"><a href="index.html">我的主页</a></div>
+    </nav>
+
+    <header class="hero">
+        <div class="hero-content">
+            <img src="vibe_images/index_constellation.png" class="constellation-title-img" alt="你好 我是黄喆">
+            <p class="tagline">与一切同行</p>
+        </div>
+    </header>
+
+    <section class="intro-section">
+        <h2><span class="grad-char">欢</span><span class="grad-char">迎</span><span class="grad-char">来</span><span class="grad-char">到</span><span class="grad-char">我</span><span class="grad-char">的</span><span class="grad-char">主</span><span class="grad-char">页</span></h2>
+        <p class="placeholder-text">我爱好广泛，喜欢看各种领域的内容（所以每种内容看的都不多），并尝试形成个人的一份理解。我也会规划自己的生活，喜欢把自己的一天排得满满的。我会反思，尝试去解读自己的心理，或去权衡人际事务上的责任划分，尝试剥离多余的小情绪。当然，我对一些具体的决定常出现执行力不足的情况，也不善交际，容易激动。总之，欢迎你的了解</p>
+    </section>
+
+    <section class="content-section" id="contentSection">
+        <div class="top-bar" id="topBar">
+            <span class="top-bar-text">下翻收起</span>
+        </div>
+        <div class="content-white-box">
+            <div class="content-blue-bar"></div>
+        </div>
+        <div class="content-inner">
+            <h2><span class="grad-char">你</span><span class="grad-char">想</span><span class="grad-char">了</span><span class="grad-char">解</span><span class="grad-char">什</span><span class="grad-char">么</span></h2>
+            <div class="hero-buttons">
+                <a href="about.html" class="btn btn-reveal">介绍</a>
+                <a href="experience.html" class="btn btn-reveal">经历</a>
+                <a href="contact.html" class="btn btn-reveal">联系</a>
+            </div>
+        </div>
+        <div class="feather-decoration">
+            <img src="feather.png" alt="">
+        </div>
+    </section>
+
+    <div class="bottom-bar" id="bottomBar">
+        <span class="bottom-bar-text">上翻了解更多</span>
+    </div>
+
+    <script>
+    (function() {
+        // ===== Drag interaction =====
+        var bottomBar = document.getElementById('bottomBar');
+        var topBar = document.getElementById('topBar');
+        var contentSection = document.getElementById('contentSection');
+        var revealed = false;
+        var dragging = false;
+        var dragSource = null;
+        var startY = 0;
+        var currentY = 0;
+        var threshold;
+
+        function getThreshold() {
+            return window.innerHeight * 3 / 8;
+        }
+
+        function onStart(e, source) {
+            if (source === 'bottom' && revealed) return;
+            if (source === 'top' && !revealed) return;
+            dragging = true;
+            dragSource = source;
+            startY = e.touches ? e.touches[0].clientY : e.clientY;
+            threshold = getThreshold();
+            bottomBar.style.transition = 'none';
+            contentSection.style.transition = 'none';
+        }
+
+        function onMove(e) {
+            if (!dragging) return;
+            e.preventDefault();
+            var y = e.touches ? e.touches[0].clientY : e.clientY;
+            if (dragSource === 'bottom') {
+                var delta = startY - y;
+                if (delta < 0) delta = 0;
+                currentY = delta;
+                bottomBar.style.transform = 'translateY(-' + delta + 'px)';
+                contentSection.style.transform = 'translateY(' + (100 - delta / window.innerHeight * 100) + '%)';
+            } else {
+                var delta = y - startY;
+                if (delta < 0) delta = 0;
+                currentY = delta;
+                contentSection.style.transform = 'translateY(' + (delta / window.innerHeight * 100) + '%)';
+            }
+        }
+
+        function reveal() {
+            if (revealed) return;
+            revealed = true;
+            bottomBar.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+            contentSection.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+            bottomBar.style.transform = 'translateY(-100vh)';
+            contentSection.style.transform = 'translateY(0)';
+            setTimeout(function() {
+                var bar = document.querySelector('.content-blue-bar');
+                if (bar) bar.classList.add('bar-animate');
+            }, 600);
+        }
+
+        function collapse() {
+            if (!revealed) return;
+            revealed = false;
+            bottomBar.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+            contentSection.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+            bottomBar.style.transform = 'translateY(0)';
+            contentSection.style.transform = 'translateY(100%)';
+            var bar = document.querySelector('.content-blue-bar');
+            if (bar) bar.classList.remove('bar-animate');
+        }
+
+        function onEnd() {
+            if (!dragging) return;
+            dragging = false;
+
+            if (dragSource === 'bottom') {
+                if (currentY >= threshold) {
+                    reveal();
+                } else {
+                    bottomBar.style.transition = 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+                    contentSection.style.transition = 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+                    bottomBar.style.transform = 'translateY(0)';
+                    contentSection.style.transform = 'translateY(100%)';
+                }
+            } else {
+                if (currentY >= threshold) {
+                    collapse();
+                } else {
+                    contentSection.style.transition = 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+                    contentSection.style.transform = 'translateY(0)';
+                }
+            }
+            currentY = 0;
+            dragSource = null;
+        }
+
+        bottomBar.addEventListener('mousedown', function(e) { onStart(e, 'bottom'); });
+        bottomBar.addEventListener('touchstart', function(e) { onStart(e, 'bottom'); }, { passive: true });
+        topBar.addEventListener('mousedown', function(e) { onStart(e, 'top'); });
+        topBar.addEventListener('touchstart', function(e) { onStart(e, 'top'); }, { passive: true });
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('touchmove', onMove, { passive: false });
+        document.addEventListener('mouseup', onEnd);
+        document.addEventListener('touchend', onEnd);
+
+        if (sessionStorage.getItem('autoReveal') === '1') {
+            sessionStorage.removeItem('autoReveal');
+            reveal();
+        }
+    })();
+    </script>
+</body>
+</html>
